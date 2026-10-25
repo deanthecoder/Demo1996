@@ -5,8 +5,8 @@ main { max-width: 1320px; padding: 24px 20px 40px; margin: auto; }
 header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
 h1 { margin: 0; font-size: 24px; }
 header p { margin: 0 0 16px; color: #b2bdd1; }
-.screen-wrap { width: 100%; background: #000; display: flex; justify-content: center; }
-canvas { width: min(100%, 960px); aspect-ratio: 4 / 3; image-rendering: pixelated; display: block; outline: none; touch-action: manipulation; }
+.screen-wrap { width: 100%; max-width: 960px; margin: auto; display: flex; justify-content: center; }
+canvas { width: min(100%, 960px); background: #000; aspect-ratio: 4 / 3; image-rendering: pixelated; display: block; outline: none; touch-action: manipulation; }
 canvas:focus-visible { outline: 2px solid #a7b7ff; outline-offset: 2px; }
 .toolbar { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 15px 0; }
 button { background: #343c52; color: inherit; border: 1px solid #68718a; padding: 7px 14px; border-radius: 4px; cursor: pointer; }

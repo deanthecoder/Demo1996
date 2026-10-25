@@ -24,7 +24,9 @@ The original program refers to a MOD song in `ref`, but no music file or playbac
 
 ## Run locally
 
-Run `./run.sh`, then open the local URL it prints. It starts a small local server because the browser loads the preserved data files.
+Open `index.html` directly in Chrome or Safari, or run `./run.sh` for a local server. The browser loads a generated JavaScript bundle of the original block bytes, so local files work without a server or special browser settings.
+
+To rebuild that data bundle after changing a runtime asset, run `node tools/build-assets.mjs`. The preserved files under `original/` are independent of the runtime bundle.
 
 ## License
 

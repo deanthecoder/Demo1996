@@ -1,3 +1,4 @@
+(() => {
 const canvas = document.querySelector('#screen');
 const context = canvas.getContext('2d', { alpha: false });
 context.imageSmoothingEnabled = false;
@@ -9,10 +10,10 @@ const pixels = new Uint8Array(WIDTH * HEIGHT);
 let palette = new Uint8Array(768);
 let assets = {};
 
-async function loadBlock(name) {
-  const response = await fetch(`assets/${name}`);
-  if (!response.ok) throw new Error(`Could not load ${name}`);
-  const data = new Uint8Array(await response.arrayBuffer());
+function loadBlock(name) {
+  const encoded = globalThis.DEMO1996_DATA?.[name];
+  if (!encoded) throw new Error(`Could not load ${name}`);
+  const data = Uint8Array.from(atob(encoded), character => character.charCodeAt(0));
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
   const width = view.getUint16(0, true), height = view.getUint16(2, true);
   const size = width * height;
@@ -68,8 +69,10 @@ const cubeEdges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[
 function drawCube(t) {
   const back = assets['DATA.003'];
   setPalette(back); copyBlock(back);
-  const phase = Math.min(t / 14, 1);
-  const rx = t * 0.036, ry = t * 0.049, rz = t * 0.021;
+  const phase = Math.min(t / 1.2, 1);
+  // Use the DOS loop's 1, 1 and 2 degree steps at a nominal 70 Hz VGA pace.
+  const angle = t * 70 * Math.PI / 180;
+  const rx = angle, ry = angle, rz = angle * 2;
   const points = cubePoints.map(point => rotate(point.map(value => value * phase), rx, ry, rz));
   for (const [a, b] of cubeEdges) line(points[a][0], points[a][1], points[b][0], points[b][1], 250, t < 5.2);
 }
@@ -149,9 +152,9 @@ function fit() {
   canvas.style.width = `${width}px`; canvas.style.height = `${Math.floor(width / aspect)}px`;
 }
 
-async function init() {
+function init() {
   const names = ['DATA.000','DATA.001','DATA.002','DATA.003','DATA.004','DATA.005'];
-  const blocks = await Promise.all(names.map(loadBlock));
+  const blocks = names.map(loadBlock);
   assets = Object.fromEntries(blocks.map((block, index) => [names[index], block]));
   addEventListener('resize', fit);
   document.querySelector('#crt-aspect').addEventListener('change', fit);
@@ -161,4 +164,6 @@ async function init() {
   addEventListener('keydown', event => { if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); nextScene(); } });
   fit(); restart(); requestAnimationFrame(frame);
 }
-init().catch(error => { console.error(error); status.textContent = `Could not start: ${error.message}`; });
+try { init(); }
+catch (error) { console.error(error); status.textContent = `Could not start: ${error.message}`; }
+})();
