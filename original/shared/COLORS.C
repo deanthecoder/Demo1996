@@ -1,0 +1,15 @@
+#define Black   16
+#define White   31
+#define Grey    16
+#define	Red     32
+#define	Green   48
+#define	Blue    64
+#define	Yellow  80
+#define	Cyan    96
+#define	Magenta 112
+#define	Orange	128
+#define Mint	144
+#define Pink	160
+#define SkyBlue	176
+#define Purple	192
+#define Teal	208

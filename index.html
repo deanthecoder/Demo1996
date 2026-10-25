@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Demo1996, a restored DOS graphics demo by Dean Edis.">
+  <title>Demo1996 — a DOS graphics demo restored</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header><h1>Demo1996</h1><p>A 1996 DOS graphics demo, restored for the browser</p></header>
+    <div class="screen-wrap"><canvas id="screen" width="320" height="200" tabindex="0" aria-label="Demo1996 graphics demo"></canvas></div>
+    <div class="toolbar">
+      <button id="restart" type="button">Restart demo</button>
+      <button id="skip" type="button">Skip scene</button>
+      <label><input id="crt-aspect" type="checkbox" checked> CRT aspect ratio</label>
+      <span id="status" role="status">Loading original data…</span>
+    </div>
+    <p class="help">Tap or press <strong>Space</strong> to skip to the next scene. The sequence recreates the original intro, rotating cube, sine scroller and plasma effect.</p>
+  </main>
+  <script type="module" src="main.js"></script>
+</body>
+</html>

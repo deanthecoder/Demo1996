@@ -1,0 +1,2 @@
+original/** -text whitespace=cr-at-eol
+assets/** -text whitespace=cr-at-eol
