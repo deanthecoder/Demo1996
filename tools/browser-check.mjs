@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
@@ -90,12 +90,35 @@ try {
         if (next[i] !== __beforeCube[i] || next[i + 1] !== __beforeCube[i + 1] || next[i + 2] !== __beforeCube[i + 2]) changed++;
       return changed;
     })()`);
-    assert.ok(changed > 100, `Cube should rotate visibly in half a second; changed ${changed} pixels`);
+    assert.ok(changed > 20, `The sparse cube dots should rotate visibly in half a second; changed ${changed} pixels`);
     console.log(`${url.startsWith('file:') ? 'file' : 'HTTP'}: title rendered, width ${state.width}px, cube changed ${changed} pixels in 0.5s`);
     for (const name of ['Sine scroller', 'Plasma']) {
       await evaluate(`document.querySelector('#skip').click()`);
       assert.equal(await evaluate(`document.querySelector('#status').textContent`), name);
     }
+  }
+  if (process.argv.includes('--capture')) {
+    const directory = await mkdtemp(join(tmpdir(), 'demo1996-scenes-'));
+    await command('Page.addScriptToEvaluateOnNewDocument', { source: `
+      window.__clock = 1000;
+      performance.now = () => window.__clock;
+      window.requestAnimationFrame = callback => { window.__drawFrame = callback; return 1; };
+    ` });
+    await command('Page.navigate', { url: new URL('index.html', root).href });
+    for (let attempt = 0; attempt < 50; attempt++) {
+      if (await evaluate(`typeof window.__drawFrame === 'function'`)) break;
+      await delay(100);
+    }
+    await evaluate(`document.querySelector('#skip').click(); document.querySelector('#skip').click(); document.querySelector('#skip').click()`);
+    for (const [name, tick] of [['dots',500],['incoming-lines',795],['wireframe',1100],['textured-cube',2300]]) {
+      await evaluate(`window.__clock = 1000 + ${tick} / 70 * 1000; window.__drawFrame(window.__clock)`);
+      const shot = await command('Page.captureScreenshot', { format: 'png' });
+      await writeFile(join(directory, `${name}.png`), Buffer.from(shot.data, 'base64'));
+    }
+    await evaluate(`document.querySelector('#skip').click(); document.querySelector('#skip').click(); window.__clock += 4000; window.__drawFrame(window.__clock)`);
+    const plasmaShot = await command('Page.captureScreenshot', { format: 'png' });
+    await writeFile(join(directory, 'plasma.png'), Buffer.from(plasmaShot.data, 'base64'));
+    console.log(`Scene screenshots: ${directory}`);
   }
   assert.deepEqual(exceptions, [], 'No browser script exceptions');
   console.log('Chrome regression checks passed.');
