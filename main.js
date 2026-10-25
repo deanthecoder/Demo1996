@@ -77,7 +77,7 @@ function drawCube(t) {
 function drawScroller(t) {
   const scroll = assets['DATA.005'];
   setPalette(scroll); clear(0);
-  const sourceX = Math.floor(t * 56) - WIDTH;
+  const sourceX = Math.floor(t * 144) - WIDTH;
   for (let x = 0; x < WIDTH; x++) {
     const sx = sourceX + x;
     if (sx < 0 || sx >= scroll.height) continue;
@@ -110,28 +110,34 @@ function drawPlasma(t) {
 }
 
 const scenes = [
-  { name: 'Edis Enterprises', duration: 3.3, draw: (t) => drawIntro('DATA.000', t) },
-  { name: 'Presents', duration: 3.3, draw: (t) => drawIntro('DATA.001', t) },
-  { name: 'The Stack', duration: 5, draw: (t) => drawIntro('DATA.002', t) },
-  { name: '3D dot and wireframe cube', duration: 14, draw: drawCube },
-  { name: 'Sine scroller', duration: 32, draw: drawScroller },
-  { name: 'Plasma', duration: 15, draw: drawPlasma },
+  { name: 'Edis Enterprises', duration: 2.2, draw: (t) => drawIntro('DATA.000', t) },
+  { name: 'Presents', duration: 2.2, draw: (t) => drawIntro('DATA.001', t) },
+  { name: 'The Stack', duration: 3.4, draw: (t) => drawIntro('DATA.002', t) },
+  { name: '3D dot and wireframe cube', duration: 8, draw: drawCube },
+  { name: 'Sine scroller', duration: 13, draw: drawScroller },
+  { name: 'Plasma', duration: 8, draw: drawPlasma },
 ];
 function drawIntro(name, t) {
   const block = assets[name]; setPalette(block); clear(0); copyBlock(block, (WIDTH - block.width) >> 1, (HEIGHT - block.height) >> 1);
 }
 
-let scene = 0, sceneStart = 0, running = true;
-function restart() { scene = 0; sceneStart = performance.now(); running = true; status.textContent = scenes[0].name; }
-function nextScene() { scene = (scene + 1) % scenes.length; sceneStart = performance.now(); running = true; status.textContent = scenes[scene].name; }
+let scene = 0, sceneStart = 0;
+function drawScene(elapsed) {
+  const current = scenes[scene];
+  current.draw(elapsed);
+  // The original fades are retained, but the title begins visibly rather than
+  // leaving a black canvas while a browser is starting its animation clock.
+  let fade = 1;
+  if (scene < 3) fade = Math.min(1, 0.3 + elapsed / 0.3, (current.duration - elapsed) / 0.25);
+  present(Math.max(0, fade));
+}
+function restart() { scene = 0; sceneStart = performance.now(); status.textContent = scenes[0].name; drawScene(0); }
+function nextScene() { scene = (scene + 1) % scenes.length; sceneStart = performance.now(); status.textContent = scenes[scene].name; drawScene(0); }
 function frame(now) {
   if (!sceneStart) sceneStart = now;
   let elapsed = (now - sceneStart) / 1000, current = scenes[scene];
   if (elapsed >= current.duration) { nextScene(); elapsed = 0; current = scenes[scene]; }
-  current.draw(elapsed);
-  let fade = 1;
-  if (scene < 3) fade = Math.min(1, elapsed / 0.55, (current.duration - elapsed) / 0.45);
-  present(Math.max(0, fade));
+  drawScene(elapsed);
   requestAnimationFrame(frame);
 }
 
@@ -139,7 +145,7 @@ function fit() {
   const wrap = document.querySelector('.screen-wrap'), toolbar = document.querySelector('.toolbar');
   const aspect = document.querySelector('#crt-aspect').checked ? 4 / 3 : 8 / 5;
   const height = Math.max(180, innerHeight - wrap.getBoundingClientRect().top - toolbar.offsetHeight - 24);
-  const width = Math.floor(Math.min(1280, wrap.clientWidth, height * aspect));
+  const width = Math.floor(Math.min(960, wrap.clientWidth, height * aspect));
   canvas.style.width = `${width}px`; canvas.style.height = `${Math.floor(width / aspect)}px`;
 }
 
