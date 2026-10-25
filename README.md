@@ -4,6 +4,8 @@
 
 **[Run Demo1996](https://deanthecoder.github.io/Demo1996/)**
 
+<img src="img/demo.png" width="640" alt="Demo1996's rotating cube with its original skull texture over the blue background">
+
 An MS-DOS graphics demo I wrote in C in **1996**, restored to run in a modern browser.
 
 The original program presents three title cards, a cube sequence, a sine-wave scroller and a plasma effect. The cube grows from seven dots per edge; lines move in from the screen corners to form a square, followed by wireframe rotation and shrink, and a cube with the original skull texture. The browser edition keeps the original packed graphic data and 320 × 200 indexed-color rendering, while making the sequence easier to replay or skip.
